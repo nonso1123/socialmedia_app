@@ -150,23 +150,23 @@ def get_users_posts(request, pk):
 @permission_classes([IsAuthenticated])
 def toggleLike(request):
     try:
-        try:
-            post = Post.objects.get(id=request.data['id'])
-        except Post.DoesNotExist:
-            return Response({'error': 'post does not exist'})
-        
-        try: 
-            user = request.user
-        except MyUser.DoesNotExist:
-            return Response({'error':'user does not exist'})
-        if user in post.likes.all():
-            post.likes.remove(user)
-            return Response({'now_liked': False})
-        else:
-            post.likes.add(user)
-            return Response({'now_liked': True})
-    except:
-        return Response({'error': 'failed to like post'})
+        post = Post.objects.get(id=request.data['id'])
+    except Post.DoesNotExist:
+        return Response({'error': 'post does not exist'}, status=404)
+
+    user = request.user
+
+    if user in post.likes.all():
+        post.likes.remove(user)
+        liked = False
+    else:
+        post.likes.add(user)
+        liked = True
+
+    return Response({
+        'now_liked': liked,
+        'like_count': post.likes.count()  # Return the updated like count
+    })
 
 
 @api_view(['POST'])
@@ -253,7 +253,11 @@ def update_post(request, id):  # Include `id` as a parameter
     # Handle GET method
     if request.method == 'GET':
         serializer = UpdatePostSerializer(post)
-        return Response(serializer.data, status=200)
+        return Response({
+            **serializer.data,
+            'like_count': post.likes.count(),  # Include like count
+            'liked': request.user in post.likes.all()  # Indicate if the user liked the post
+        })
 
     # Handle PATCH method
     if request.method == 'PATCH':
@@ -273,3 +277,6 @@ def update_post(request, id):  # Include `id` as a parameter
 
     post.save()
     return Response({'message': 'Post updated successfully'})
+
+    
+        
