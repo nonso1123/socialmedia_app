@@ -274,9 +274,14 @@ def update_post(request, id):  # Include `id` as a parameter
 
     if 'post_image' in request.FILES:  # Update image only if a new file is provided
         post.post_image = request.FILES['post_image']
+        post.save()
+        return Response({'message': 'Post updated successfully'})
+    if request.method == 'DELETE':
+        post.delete()
+        return Response({'message': 'Post deleted successfully'})
 
-    post.save()
-    return Response({'message': 'Post updated successfully'})
+    
 
+    
     
         
