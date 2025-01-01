@@ -68,7 +68,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
 "http://localhost:5173",
-"https://flashapp-sqwf.onrender.com"
+"https://flashapp-sook.onrender.com"
 ]
 CORS_ALLOW_CREDENTIALS = True
 
