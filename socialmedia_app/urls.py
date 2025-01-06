@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_user_profile_data, CustomTokenObtainPairView, CustomTokenRefreshView, register, authenticated, toggleFollow, get_users_posts, toggleLike, create_post, get_posts, search_user, update_user, logout, update_post
+from .views import get_user_profile_data, CustomTokenObtainPairView, CustomTokenRefreshView, register, authenticated, toggleFollow, get_users_posts, toggleLike, create_post, get_posts, search_user, update_user, logout, update_post, check_username
 
 
 urlpatterns = [
@@ -16,5 +16,6 @@ urlpatterns = [
     path('search_user/', search_user),
     path('update_user/', update_user),
     path('logout/', logout),
-    path('update_post/<int:id>/', update_post)
+    path('update_post/<int:id>/', update_post),
+    path('check-username/', check_username),
 ]

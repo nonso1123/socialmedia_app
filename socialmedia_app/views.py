@@ -23,6 +23,17 @@ def register(request):
         return Response(serializer.data)
     return Response(serializer.errors)
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def check_username(request):
+    username = request.query_params.get('username', None)
+    if not username:
+        return Response({"error": "Username is required."}, status=400)
+    
+    if MyUser.objects.filter(username=username).exists():
+        return Response({"available": False}, status=200)
+    return Response({"available": True}, status=200)
+
 class CustomTokenObtainPairView(TokenObtainPairView):
      def post(self, request, *args, **kwargs):
         try:
