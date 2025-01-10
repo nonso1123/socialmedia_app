@@ -14,7 +14,7 @@ urlpatterns = [
     path('create_post/', create_post),
     path('get_posts/', get_posts),
     path('search_user/', search_user),
-    path('update_user/', update_user),
+    path('update_user/<str:pk>/', update_user),
     path('logout/', logout),
     path('update_post/<int:id>/', update_post),
     path('check-username/', check_username),

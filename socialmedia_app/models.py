@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 
 class MyUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, primary_key=True)
-    bio = models.CharField(max_length=500)
+    bio = models.CharField(max_length=500, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_image/', blank=True, null=True)
     followers = models.ManyToManyField('self', symmetrical=False, related_name='following', blank=True)
 
@@ -15,7 +15,7 @@ class MyUser(AbstractUser):
 
 class Post(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='posts')
-    description = models.CharField(max_length=400)
+    description = models.TextField()
     post_image = models.ImageField(upload_to='post_image/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(MyUser, related_name='post_likes', blank=True)

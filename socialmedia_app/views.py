@@ -49,12 +49,14 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 return Response({'error':'user does not exist'})
             res = Response()
             res.data = {'success': True,
+                       
                         "user": {
                             "username": user.username,
                             "bio": user.bio,
                             "email": user.email,
                             "first_name": user.first_name,
-                            "last_name": user.last_name
+                            "last_name": user.last_name,
+                            "profile_image": user.profile_image.url if user.profile_image else None,
                             }
                         }
 
@@ -228,18 +230,33 @@ def search_user(request):
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.core.exceptions import ObjectDoesNotExist
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
-def update_user(request):
+def update_user(request, pk):
     try: 
-        user = request.user
+        user = MyUser.objects.get(username=request.user.username)
     except MyUser.DoesNotExist:
-        return Response({'error':'user does not exist'})    
+        return Response({'error': 'User does not exist'}, status=404)
+    
+    # Handle profile_image update if provided
+    if 'profile_image' in request.FILES:
+        user.profile_image = request.FILES['profile_image']
+        
+    
+    # Handle other fields via serializer
     serializer = UserSerializer(user, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
-        return Response({**serializer.data, "success": True})
-    return Response({**serializer.errors, "success": False})
+        return Response({**serializer.data, "success": True}, status=200)
+    
+    return Response({**serializer.errors, "success": False}, status=400)
+
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -255,7 +272,7 @@ def logout(request):
     
 @api_view(['PATCH', 'GET', 'DELETE'])
 @permission_classes([IsAuthenticated])
-def update_post(request, id):  # Include `id` as a parameter
+def update_post(request, id): 
     try:
         post = Post.objects.get(id=id)
     except Post.DoesNotExist:
@@ -266,11 +283,11 @@ def update_post(request, id):  # Include `id` as a parameter
         serializer = UpdatePostSerializer(post)
         return Response({
             **serializer.data,
-            'like_count': post.likes.count(),  # Include like count
-            'liked': request.user in post.likes.all()  # Indicate if the user liked the post
+            'like_count': post.likes.count(),  
+            'liked': request.user in post.likes.all()  
         })
 
-    # Handle PATCH method
+  
     if request.method == 'PATCH':
         try:
             post = Post.objects.get(id=id)
